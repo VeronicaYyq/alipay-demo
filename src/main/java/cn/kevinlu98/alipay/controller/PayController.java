@@ -1,15 +1,19 @@
 package cn.kevinlu98.alipay.controller;
 
 import cn.kevinlu98.alipay.config.AlipayConfig;
+import cn.kevinlu98.alipay.config.ResultCode;
+import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
+
 
 /**
  * @Author: Kevin·Lu
@@ -74,5 +78,22 @@ public class PayController {
                 "</html>";
         //输出
         response.getWriter().println(top + result + bottom);
+        System.out.println(result);
+    }
+
+
+    @RequestMapping("/refund")
+    public void refund() throws AlipayApiException {
+        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.gatewayUrl, AlipayConfig.app_id, AlipayConfig.merchant_private_key, "json", AlipayConfig.charset, AlipayConfig.alipay_public_key, AlipayConfig.sign_type);
+
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();//创建API对应的request类
+        request.setBizContent("{" +
+                "\"out_trade_no\":\"2020121616845154\"," +
+                "\"trade_no\":\"2020121622001426651001051898\"," +
+                "\"refund_amount\":\"0.01\"}"); //设置业务参数
+        AlipayTradeRefundResponse response = alipayClient.execute(request);//通过alipayClient调用API，获得对应的response类
+        if (ResultCode.SUCCESS.equals(response.getCode())) {
+            System.out.println("退款成功");
+        }
     }
 }
